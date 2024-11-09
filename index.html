@@ -1,106 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Black Hat Coder</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Dark, hacker-inspired theme */
-        body {
-            background-color: #0a0a0a;
-            color: #00ff99;
-            font-family: monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #121212;
-            border: 1px solid #00ff99;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 255, 153, 0.5);
-            max-width: 600px;
-            text-align: center;
-        }
-        .title {
-            font-size: 2em;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            color: #00ff99;
-            animation: flicker 2s infinite alternate;
-        }
-        .prompt {
-            font-size: 1.2em;
-            color: #00ff99;
-            margin: 20px 0;
-        }
-        .button-hack {
-            background-color: transparent;
-            color: #00ff99;
-            border: 1px solid #00ff99;
-            padding: 10px 20px;
-            margin-top: 20px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .button-hack:hover {
-            background-color: #00ff99;
-            color: #121212;
-        }
-        .hidden {
-            display: none;
-        }
-        @keyframes flicker {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
-        }
-        @keyframes type {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Game</title>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+    }
+    #gameCanvas {
+        border: 2px solid #333;
+        background-color: #000;
+    }
+    .score {
+        position: absolute;
+        top: 20px;
+        color: #fff;
+        font-size: 24px;
+        font-weight: bold;
+    }
+</style>
 </head>
 <body>
-
-<div class="container">
-    <h1 class="title">Black Hat Coder</h1>
-    <p class="prompt">Welcome, agent. Your mission awaits...</p>
-    <button class="button-hack" onclick="startMission()">Enter the Code</button>
-    
-    <!-- Hidden message container -->
-    <div id="mission" class="hidden">
-        <p>Challenge: Decode the encrypted message</p>
-        <p id="code-output"></p>
-    </div>
-</div>
+    <div class="score" id="score">Score: 0</div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
 
 <script>
-    const message = "Q29uZ3JhdHVsYXRpb25zLCB5b3UgY3JhY2tlZCB0aGUgY29kZSE=";
-    let revealed = false;
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
 
-    function startMission() {
-        const missionContainer = document.getElementById("mission");
-        missionContainer.classList.remove("hidden");
-        document.querySelector('.button-hack').classList.add("hidden");
+    const gridSize = 20; // Size of each grid square
+    let snake = [{ x: gridSize * 5, y: gridSize * 5 }]; // Initial snake
+    let snakeLength = 1; // Initial length
+    let food = { x: gridSize * 10, y: gridSize * 10 }; // Initial food position
+    let direction = "RIGHT"; // Initial direction
+    let score = 0;
 
-        if (!revealed) {
-            revealCode();
-            revealed = true;
+    // Generate random position for food
+    function getRandomPosition() {
+        const maxPos = canvas.width / gridSize;
+        return {
+            x: Math.floor(Math.random() * maxPos) * gridSize,
+            y: Math.floor(Math.random() * maxPos) * gridSize,
+        };
+    }
+
+    // Update game state
+    function update() {
+        const head = { ...snake[0] };
+
+        switch (direction) {
+            case "LEFT":
+                head.x -= gridSize;
+                break;
+            case "RIGHT":
+                head.x += gridSize;
+                break;
+            case "UP":
+                head.y -= gridSize;
+                break;
+            case "DOWN":
+                head.y += gridSize;
+                break;
+        }
+
+        // Check if the snake eats the food
+        if (head.x === food.x && head.y === food.y) {
+            snakeLength++;
+            score++;
+            food = getRandomPosition();
+            scoreElement.textContent = `Score: ${score}`;
+        }
+
+        // Move the snake
+        snake.unshift(head);
+        if (snake.length > snakeLength) snake.pop();
+
+        // Check for collisions with the walls
+        if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+            resetGame();
+        }
+
+        // Check for collisions with itself
+        for (let i = 1; i < snake.length; i++) {
+            if (head.x === snake[i].x && head.y === snake[i].y) {
+                resetGame();
+            }
         }
     }
 
-    function revealCode() {
-        const decodedMessage = atob(message);
-        const output = document.getElementById("code-output");
-        output.innerText = decodedMessage;
-    }
-</script>
+    // Draw game elements
+    function draw() {
+        // Clear canvas
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        // Draw food
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x, food.y, gridSize, gridSize);
+
+        // Draw snake
+        ctx.fillStyle = "lime";
+        for (let segment of snake) {
+            ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
+        }
+    }
+
+    // Handle keydown events
+    window.addEventListener("keydown", (e) => {
+        switch (e.key) {
+            case "ArrowLeft":
+                if (direction !== "RIGHT") direction = "LEFT";
+                break;
+            case "ArrowUp":
+                if (direction !== "DOWN") direction = "UP";
+                break;
+            case "ArrowRight":
+                if (direction !== "LEFT") direction = "RIGHT";
+                break;
+            case "ArrowDown":
+                if (direction !== "UP") direction = "DOWN";
+                break;
+        }
+    });
+
+    // Reset game
+    function resetGame() {
+        snake = [{ x: gridSize * 5, y: gridSize * 5 }];
+        snakeLength = 1;
+        direction = "RIGHT";
+        score = 0;
+        scoreElement.textContent = `Score: ${score}`;
+        food = getRandomPosition();
+    }
+
+    // Main game loop
+    function gameLoop() {
+        update();
+        draw();
+        setTimeout(gameLoop, 100);
+    }
+
+    // Start the game
+    gameLoop();
+</script>
 </body>
 </html>
