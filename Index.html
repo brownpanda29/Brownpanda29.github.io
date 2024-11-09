@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dexter Encoder</title>
+</head>
+<body>
+    <h1>Dexter Encoder/Decoder</h1>
+    <form action="/encode" method="POST">
+        <label for="message">Message to Encode:</label>
+        <input type="text" name="message" required>
+        <button type="submit">Encode</button>
+    </form>
+    {% if encoded_message %}
+    <p>Encoded Message: {{ encoded_message }}</p>
+    {% endif %}
+    <form action="/decode" method="POST">
+        <label for="encoded_message">Encoded Message to Decode:</label>
+        <input type="text" name="encoded_message" required>
+        <button type="submit">Decode</button>
+    </form>
+    {% if decoded_message %}
+    <p>Decoded Message: {{ decoded_message }}</p>
+    {% endif %}
+</body>
+</html>
