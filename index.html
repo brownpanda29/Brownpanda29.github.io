@@ -3,142 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Programming & Cybersecurity Quiz</title>
+    <title>Black Hat Coder</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* MacOS-style color scheme */
+        /* Dark, hacker-inspired theme */
         body {
-            background-color: #f0f4f8;
-            font-family: Arial, sans-serif;
-            color: #333;
+            background-color: #0a0a0a;
+            color: #00ff99;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         .container {
-            max-width: 700px;
-            margin-top: 50px;
+            background-color: #121212;
+            border: 1px solid #00ff99;
             padding: 20px;
-            background-color: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 153, 0.5);
+            max-width: 600px;
+            text-align: center;
         }
-        .btn-custom {
-            background-color: #007aff;
-            color: white;
-            border: none;
-            transition: all 0.3s ease;
+        .title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            color: #00ff99;
+            animation: flicker 2s infinite alternate;
         }
-        .btn-custom:hover {
-            background-color: #005bb5;
-        }
-        .question {
+        .prompt {
             font-size: 1.2em;
-            margin-bottom: 15px;
+            color: #00ff99;
+            margin: 20px 0;
         }
-        .fade-in {
-            animation: fadeIn 1.5s ease;
+        .button-hack {
+            background-color: transparent;
+            color: #00ff99;
+            border: 1px solid #00ff99;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .button-hack:hover {
+            background-color: #00ff99;
+            color: #121212;
+        }
+        .hidden {
+            display: none;
+        }
+        @keyframes flicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        @keyframes type {
+            from { width: 0; }
+            to { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-<div class="container fade-in">
-    <h1 class="text-center mb-4">Programming & Cybersecurity Quiz</h1>
+<div class="container">
+    <h1 class="title">Black Hat Coder</h1>
+    <p class="prompt">Welcome, agent. Your mission awaits...</p>
+    <button class="button-hack" onclick="startMission()">Enter the Code</button>
     
-    <!-- Question Area -->
-    <div id="quiz-container">
-        <p class="question">Click "Start" to begin the quiz!</p>
-    </div>
-    
-    <!-- Button to start quiz or next question -->
-    <div class="text-center mt-3">
-        <button id="start-btn" class="btn btn-custom">Start Quiz</button>
+    <!-- Hidden message container -->
+    <div id="mission" class="hidden">
+        <p>Challenge: Decode the encrypted message</p>
+        <p id="code-output"></p>
     </div>
 </div>
 
 <script>
-    // Questions array
-    const questions = [
-        { 
-            question: "What does SQL stand for in cybersecurity?", 
-            options: ["Structured Query Language", "Secure Query Language", "Simple Query Link", "Standard Query Library"], 
-            answer: "Structured Query Language" 
-        },
-        { 
-            question: "What is the main purpose of a firewall in cybersecurity?", 
-            options: ["Encrypt data", "Block unauthorized access", "Analyze network traffic", "Secure the server"], 
-            answer: "Block unauthorized access" 
-        },
-        { 
-            question: "In programming, what does API stand for?", 
-            options: ["Application Programming Interface", "Automated Program Interaction", "Advanced Process Integration", "Applied Programming Interface"], 
-            answer: "Application Programming Interface" 
-        },
-        { 
-            question: "Which of these is a common hashing algorithm?", 
-            options: ["SHA-256", "TCP", "UDP", "FTP"], 
-            answer: "SHA-256" 
-        },
-        { 
-            question: "What is Cross-Site Scripting commonly abbreviated as?", 
-            options: ["XSS", "CSS", "SQL", "CSR"], 
-            answer: "XSS" 
-        }
-    ];
+    const message = "Q29uZ3JhdHVsYXRpb25zLCB5b3UgY3JhY2tlZCB0aGUgY29kZSE=";
+    let revealed = false;
 
-    let currentQuestion = 0;
-    let score = 0;
+    function startMission() {
+        const missionContainer = document.getElementById("mission");
+        missionContainer.classList.remove("hidden");
+        document.querySelector('.button-hack').classList.add("hidden");
 
-    document.getElementById("start-btn").addEventListener("click", function() {
-        if (currentQuestion === 0) {
-            showQuestion();
-            this.innerText = "Next";
-        } else {
-            checkAnswer();
-            currentQuestion++;
-            if (currentQuestion < questions.length) {
-                showQuestion();
-            } else {
-                showResults();
-                this.innerText = "Restart";
-                currentQuestion = 0;
-                score = 0;
-            }
-        }
-    });
-
-    function showQuestion() {
-        const quizContainer = document.getElementById("quiz-container");
-        const questionData = questions[currentQuestion];
-        quizContainer.innerHTML = `
-            <p class="question">${questionData.question}</p>
-            ${questionData.options.map((option, index) => `
-                <button class="btn btn-outline-secondary w-100 mt-2 option" onclick="selectOption('${option}')">${index + 1}. ${option}</button>
-            `).join('')}
-        `;
-    }
-
-    function selectOption(selectedOption) {
-        const buttons = document.querySelectorAll(".option");
-        buttons.forEach(button => {
-            button.classList.remove("btn-outline-secondary", "btn-success", "btn-danger");
-            button.classList.add(selectedOption === button.innerText.substring(3) ? "btn-success" : "btn-danger");
-        });
-    }
-
-    function checkAnswer() {
-        const selectedButton = document.querySelector(".btn-success");
-        if (selectedButton && selectedButton.innerText.substring(3) === questions[currentQuestion].answer) {
-            score++;
+        if (!revealed) {
+            revealCode();
+            revealed = true;
         }
     }
 
-    function showResults() {
-        document.getElementById("quiz-container").innerHTML = `
-            <p class="question">You scored ${score} out of ${questions.length}!</p>
-        `;
+    function revealCode() {
+        const decodedMessage = atob(message);
+        const output = document.getElementById("code-output");
+        output.innerText = decodedMessage;
     }
 </script>
 
